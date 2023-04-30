@@ -126,3 +126,65 @@ public enum PokemonType
     Ghost,
     Dragon
 }
+
+public class TypeChart
+{
+    static float[][] chart = 
+    {
+        //important to use the same order that is in the PokemonType enum
+        //                     Nor  Fir Wat Ele Gra Ice Fig Poi
+        ///*Normal*/new float[] { 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f,},
+        ///*Fire*/  new float[] { 1f, 0.5f, 0.5f, 1f, 2f, 1f, 1f, 1f,},
+        ///*Water*/ new float[] { 1f, 2f, 0.5f, 2f, 0.5f, 1f, 1f, 1f,},
+        ///*Elect*/ new float[] { 1f, 1f, 2f, 0.5f, 0.5f, 2f, 1f, 1f,},
+        ///*Grass*/ new float[] { 1f, 0.5f, 2f, 2f, 0.5f, 1f, 1f, 0.5f,},
+        ///*Poiso*/ new float[] { 1f, 1f, 1f, 1f, 2f, 1f, 1f, 1f,}, //below is the complete chart
+
+        new float[] { 1f,  1f,   1f,  1f,  1f,  1f,  1f,  1f,  1f,  1f,  1f,  1f, 0.5f, 0f,  1f,  1f, 0.5f },
+
+        new float[] { 1f, 0.5f, 0.5f, 1f,  2f,  2f,  1f,  1f,  1f,  1f,  1f,  2f, 0.5f, 1f, 0.5f, 1f,  2f },
+
+        new float[] { 1f,  2f,  0.5f, 2f, 0.5f, 1f,  1f,  1f,  2f,  1f,  1f,  1f,  2f,  1f, 0.5f, 1f,  1f },
+
+        new float[] { 1f,  1f,   2f, 0.5f,0.5f, 2f,  1f,  1f,  0f,  2f,  1f,  1f,  1f,  1f, 0.5f, 1f,  1f },
+
+        new float[] { 1f, 0.5f,  2f,  2f, 0.5f, 1f,  1f, 0.5f, 2f, 0.5f, 1f, 0.5f, 2f,  1f, 0.5f, 1f, 0.5f },
+
+        new float[] { 1f, 0.5f, 0.5f, 1f,  2f, 0.5f, 1f,  1f,  2f,  2f,  1f,  1f,  1f,  1f,  2f,  1f, 0.5f },
+
+        new float[] { 2f,  1f,   1f,  1f,  1f,  2f,  1f, 0.5f, 1f, 0.5f, 0.5f, 0.5f, 2f, 0f, 1f,  2f,  2f },
+
+        new float[] { 1f,  1f,   1f,  1f,  2f,  1f,  1f, 0.5f, 0.5f, 1f, 1f,  1f, 0.5f, 0.5f, 1f, 1f,  0f },
+
+        new float[] { 1f,  2f,   1f,  2f, 0.5f, 1f,  1f,  2f,  1f,  0f,  1f, 0.5f, 2f,  1f,  1f,  1f,  2f },
+
+        new float[] { 1f,  1f,   1f, 0.5f, 2f,  1f,  2f,  1f,  1f,  1f,  1f,  2f, 0.5f, 1f,  1f,  1f, 0.5f },
+
+        new float[] { 1f,  1f,   1f,  1f,  1f,  1f,  2f,  2f,  1f,  1f, 0.5f, 1f,  1f,  1f,  1f,  0f, 0.5f },
+
+        new float[] { 1f, 0.5f,  1f,  1f,  2f, 1f, 0.5f, 0.5f, 1f, 0.5f, 2f,  1f,  1f, 0.5f, 1f,  2f, 0.5f },
+
+        new float[] { 1f,  2f,   1f,  1f,  1f,  2f, 0.5f, 1f, 0.5f, 2f,  1f,  2f,  1f,  1f,  1f,  1f, 0.5f },
+
+        new float[] { 0f,  1f,   1f,  1f,  1f,  1f,  1f,  1f,  1f,  1f,  2f,  1f,  1f,  2f, 1f, 0.5f, 0.5f },
+
+        new float[] { 1f,  1f,   1f,  1f,  1f,  1f,  1f,  1f,  1f,  1f,  1f,  1f,  1f,  1f,  2f,  1f,  0.5f},
+
+        new float[] { 1f,  1f,   1f,  1f,  1f,  1f, 0.5f, 1f,  1f,  1f,  2f,  1f,  1f,  2f, 1f, 0.5f, 0.5f },
+
+        new float[] { 1f, 0.5f, 0.5f, 0.5f, 1f, 2f,  1f,  1f,  1f,  1f,  1f,  1f,  2f,  1f,  1f,  1f,  0.5f }
+    };
+
+    public static float GetEffectiveness(PokemonType attackType, PokemonType defenseType)
+    {
+        if(attackType == PokemonType.None || defenseType == PokemonType.None)
+        {
+            return 1;
+        }
+
+        int row = (int)attackType - 1;
+        int col = (int)defenseType - 1;
+
+        return chart[row][col];
+    }
+}

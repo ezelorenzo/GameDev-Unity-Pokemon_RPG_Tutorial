@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +12,8 @@ public class PlayerController : MonoBehaviour
     private Vector2 input;
     private Animator animator;
 
+    public event Action OnEncountered;
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -22,7 +25,7 @@ public class PlayerController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    public void HandleUpdate()
     {
         if(!isMoving)
         {
@@ -77,9 +80,10 @@ public class PlayerController : MonoBehaviour
     {
         if (Physics2D.OverlapCircle(transform.position, 0.3f, grassLayer) != null)//this float is 0.3 because the size of the player.
         {
-            if (Random.Range(1, 101) <= 10)
+            if (UnityEngine.Random.Range(1, 101) <= 10)
             {
-                Debug.Log("Encountered a wild pokemon");
+                animator.SetBool("isMoving", false);
+                OnEncountered();
             }
         }        
     }
