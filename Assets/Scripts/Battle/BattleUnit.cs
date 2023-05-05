@@ -5,9 +5,21 @@ using UnityEngine.UI;
 using DG.Tweening;
 public class BattleUnit : MonoBehaviour
 {
-    [SerializeField] PokemonBase _base;
-    [SerializeField] int level;
+    //[SerializeField] PokemonBase _base;
+    //[SerializeField] int level; //this was for practice and a first approach, we will set it dynamically now.
     [SerializeField] bool isPlayerUnit;
+
+    [SerializeField] BattleHud hud;
+    public bool IsPlayerUnit
+    {
+        get { return isPlayerUnit; }
+    }
+
+    public BattleHud Hud
+    {
+        get { return hud; }
+    }
+
     public Pokemon Pokemon { get; set; }
     Image image;
     Vector3 originalPos;
@@ -20,9 +32,10 @@ public class BattleUnit : MonoBehaviour
     }
 
     
-    public void SetUp()
+    public void SetUp(Pokemon pokemon)
     {
-        Pokemon = new Pokemon(_base, level);
+
+        Pokemon = pokemon;
         if (isPlayerUnit)
         {
             image.sprite = Pokemon.Base.BackSprite;
@@ -31,6 +44,8 @@ public class BattleUnit : MonoBehaviour
         {
             image.sprite = Pokemon.Base.FrontSprite;
         }
+
+        hud.SetData(pokemon);
 
         image.color = originalColor;    
         PlayEnterAnimation();
