@@ -18,3 +18,5 @@ MonoBehaviour:
   power: 45
   accuracy: 100
   pp: 20
+  category: 1
+  target: 0

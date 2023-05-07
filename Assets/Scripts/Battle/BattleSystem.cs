@@ -171,14 +171,31 @@ public class BattleSystem : MonoBehaviour
         yield return new WaitForSeconds(1f);
         targetUnit.PlayHitAnimation();
 
+        if (move.Base.Category == MoveCategory.Status)
+        {
+            var effects = move.Base.Effects;
+            if (effects.Boosts != null)
+            {
+                if(move.Base.Target == MoveTarget.Self)
+                {
+                    sourceUnit.Pokemon.ApplyBoosts(effects.Boosts);
+                }
+                else
+                {
+                    targetUnit.Pokemon.ApplyBoosts(effects.Boosts);
+                }
+            }
+        }
+        else
+        {
+            var damageDetails = targetUnit.Pokemon.TakeDamage(move, sourceUnit.Pokemon);            
 
-        var damageDetails = targetUnit.Pokemon.TakeDamage(move, sourceUnit.Pokemon);
+            yield return targetUnit.Hud.UpdateHP();
+            yield return ShowDamageDetails(damageDetails);
+        }
 
-        Debug.Log("player damage = " + damageDetails.ToString());
-
-        yield return targetUnit.Hud.UpdateHP();
-        yield return ShowDamageDetails(damageDetails);
-        if (damageDetails.Fainted)
+        //if (damageDetails.Fainted)
+        if (targetUnit.Pokemon.HP <= 0)
         {
             yield return dialogBox.TypeDialog($"{targetUnit.Pokemon.Base.Name} Fainted");
             targetUnit.PlayFaintAnimation();
