@@ -15,7 +15,10 @@ public class Pokemon
     public List<Move> Moves { get; set; }
     public Dictionary<Stat, int> Stats { get; private set; }//setter private only set in this class.
     public Dictionary<Stat, int> StatBoosts { get; private set; }
+    public Condition Status { get; private set; }
+    public int StatusTime { get; set; }
     public Queue<string> statusChanges { get; private set; } = new Queue<string>();
+    public bool HpChanged { get; set; }
     public void Init()
     {
         Moves = new List<Move>();
@@ -154,19 +157,49 @@ public class Pokemon
 
         Debug.Log(attacker.Base.name + " did " + damage.ToString() + " damage.");
 
-        HP -= damage;
-        if(HP <= 0 )
-        {
-            HP = 0;
-            damageDetails.Fainted = true;
-        }
+        UpdateHP(damage);
+
         return damageDetails;
+    }
+
+    public void UpdateHP(int damage)
+    {
+        HP = Mathf.Clamp(HP - damage, 0, MaxHP);
+        HpChanged = true;
+    }
+
+    public void SetStatus(ConditionID conditionID)
+    {
+        Status = ConditionsDB.conditions[conditionID];
+        Status?.OnStart?.Invoke(this);
+        statusChanges.Enqueue($"{Base.Name} {Status.StartMessage}");
+    }
+
+    public void CureStatus()
+    {
+        Status = null;
     }
 
     public Move GetRandomMove()
     {
         int r = Random.Range(0, Moves.Count);
         return Moves[r];
+    }
+
+    public void OnAfterTurn()
+    {
+        //Status.OnAfterTurn(this); //this could have some problems, like slp or prz status wont have an after turn.
+        Status?.OnAfterTurn?.Invoke(this); // if the OnAfterTurn is not null it will call it.
+    }
+
+    public bool OnBeforeMove()
+    {
+        if(Status?.OnBeforeMove != null)
+        {
+            return Status.OnBeforeMove(this);
+        }
+
+        return true;
     }
 
     public void OnBattleOver()

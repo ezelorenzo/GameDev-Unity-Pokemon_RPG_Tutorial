@@ -100,30 +100,7 @@ public class BattleSystem : MonoBehaviour
 
         var move = playerUnit.Pokemon.Moves[currentMove];
         yield return RunMove(playerUnit, enemyUnit, move);
-
-
-        //move.PP--;
-        //yield return dialogBox.TypeDialog($"{playerUnit.Pokemon.Base.Name} used {move.Base.Name}"); 
-
-        //playerUnit.PlayAttackAnimation();
-        //yield return new WaitForSeconds(1f);
-        //enemyUnit.PlayHitAnimation();
-
-
-        //var damageDetails = enemyUnit.Pokemon.TakeDamage(move, playerUnit.Pokemon);
-
-        //Debug.Log("player damage = " + damageDetails.ToString());
-
-        //yield return enemyHud.UpdateHP();
-        //yield return ShowDamageDetails(damageDetails);
-        //if (damageDetails.Fainted)
-        //{
-        //    yield return dialogBox.TypeDialog($"{enemyUnit.Pokemon.Base.Name} Fainted");
-        //    enemyUnit.PlayFaintAnimation();
-
-        //    yield return new WaitForSeconds(2f);
-        //    OnBattleOver(true);
-        //}        
+     
 
         //if the battle state was not changed by RunMove, then go to next step.
         if (state == BattleState.PerformMove)
@@ -138,35 +115,7 @@ public class BattleSystem : MonoBehaviour
         var move = enemyUnit.Pokemon.GetRandomMove();
 
         yield return RunMove(enemyUnit, playerUnit, move);
-        //move.PP--;
-        //yield return dialogBox.TypeDialog($"{enemyUnit.Pokemon.Base.Name} used {move.Base.Name}");
-
-        //enemyUnit.PlayAttackAnimation();
-        //yield return new WaitForSeconds(1f);
-        //playerUnit.PlayHitAnimation();
-
-        //var damageDetails = playerUnit.Pokemon.TakeDamage(move, enemyUnit.Pokemon);
-
-        //Debug.Log("enemy damage = " + damageDetails.ToString());
-        //yield return playerHud.UpdateHP();//this update in the UI the hp
-        //yield return ShowDamageDetails(damageDetails);
-        //if (damageDetails.Fainted)
-        //{
-        //    yield return dialogBox.TypeDialog($"{playerUnit.Pokemon.Base.Name} Fainted");
-        //    playerUnit.PlayFaintAnimation();
-        //    yield return new WaitForSeconds(2f);
-
-        //    var nextPokemon = playerParty.GetHealthyPokemon();
-
-        //    if (nextPokemon != null)
-        //    {
-        //        OpenPartyScreen();
-        //    }
-        //    else
-        //    {
-        //        OnBattleOver(false);
-        //    }            
-        //}
+        
 
         //if the battle state was not changed by RunMove, then go to next step.
         if(state == BattleState.PerformMove)
@@ -177,6 +126,14 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator RunMove(BattleUnit sourceUnit, BattleUnit targetUnit, Move move)
     {
+        bool canRunMove = sourceUnit.Pokemon.OnBeforeMove();
+        if(!canRunMove)
+        {
+            yield return ShowStatusChanges(sourceUnit.Pokemon);
+            yield break; //if entered this condition, all the code below will not excecute.
+        }
+        yield return ShowStatusChanges(sourceUnit.Pokemon);
+
         move.PP--;
         yield return dialogBox.TypeDialog($"{sourceUnit.Pokemon.Base.Name} used {move.Base.Name}");
 
@@ -205,11 +162,27 @@ public class BattleSystem : MonoBehaviour
 
             CheckForBattleOver(targetUnit);
         }
+
+        //Status like burn or psn will hurt the pokemon after the turn
+        sourceUnit.Pokemon.OnAfterTurn();
+        yield return ShowStatusChanges(sourceUnit.Pokemon);
+        yield return sourceUnit.Hud.UpdateHP(); //one problem is that not all conditions may change hp. for this reason implemented the bool hpChanged in Pokemon class.
+
+        if (sourceUnit.Pokemon.HP <= 0)
+        {
+            yield return dialogBox.TypeDialog($"{sourceUnit.Pokemon.Base.Name} Fainted");
+            sourceUnit.PlayFaintAnimation();
+            yield return new WaitForSeconds(2f);
+
+            CheckForBattleOver(sourceUnit);
+        }
     }
 
     IEnumerator RunMoveEffects(Move move, Pokemon source, Pokemon target)
     {
         var effects = move.Base.Effects;
+
+        //Stat Boosting
         if (effects.Boosts != null)
         {
             if (move.Base.Target == MoveTarget.Self)
@@ -220,6 +193,11 @@ public class BattleSystem : MonoBehaviour
             {
                 target.ApplyBoosts(effects.Boosts);
             }
+        }
+        //Status Condition
+        if (effects.Status != ConditionID.none)
+        {
+            target.SetStatus(effects.Status);
         }
 
         yield return ShowStatusChanges(source);

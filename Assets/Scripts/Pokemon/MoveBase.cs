@@ -87,10 +87,16 @@ public class MoveEffects
 {
     //[SerializeField] Dictionary <Stat, int> // unity cant serialize a Dictionary so we do the next
     [SerializeField] List<StatBoost> boosts;
+    [SerializeField] ConditionID status;
 
     public List<StatBoost> Boosts
     {
         get { return boosts; }
+    }
+
+    public ConditionID Status
+    {
+        get { return status; }
     }
 }
 
